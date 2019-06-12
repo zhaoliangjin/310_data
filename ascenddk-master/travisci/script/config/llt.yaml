@@ -1,0 +1,32 @@
+ut_pytest:
+    - type: command
+      cmd: rm -rf ${BUILD_TEMP_PATH}/*
+    - type: command
+      cmd: py.test --cov-report html:${BUILD_TEMP_PATH}/coverage_result 
+           --cov=${ASCEND_ROOT_PATH}/ascenddk --rootdir=/ ${ASCEND_ROOT_PATH}/ascenddk/test/ut/
+           -o cache_dir=${BUILD_TEMP_PATH}/.pytest_cache
+           --cov-config=${ASCEND_ROOT_PATH}/ascenddk/scripts/travis_scripts/script/config/.coveragerc
+    - type: function
+      function_name: check_coverage
+      params:
+          - ${BUILD_TEMP_PATH}/coverage_result
+          - 100
+      expected_result: True
+st_pytest:
+    - type: command
+      cmd: rm -rf ${BUILD_TEMP_PATH}/*
+    - type: command
+      cmd: py.test --cov-report html:${BUILD_TEMP_PATH}/coverage_result 
+           --cov=${ASCEND_ROOT_PATH}/ascenddk --rootdir=/ ${ASCEND_ROOT_PATH}/ascenddk/test/st/
+           -o cache_dir=${BUILD_TEMP_PATH}/.pytest_cache
+           --cov-config=${ASCEND_ROOT_PATH}/ascenddk/scripts/travis_scripts/script/config//.coveragerc
+    - type: function
+      function_name: check_coverage
+      params:
+          - ${BUILD_TEMP_PATH}/coverage_result
+      expected_result: True
+ut_ctest:
+    - type: command
+      cmd: rm -rf ${BUILD_TEMP_PATH}/*
+    - type: function
+      

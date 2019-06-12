@@ -1,0 +1,4 @@
+install:
+    - sudo apt-get update #travis CI: need to update before install
+    - sudo apt-get -y install gcc-aarch64-linux-gnu
+    - sudo apt-get -y install g++-aarch64-linux-gnu

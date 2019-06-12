@@ -1,0 +1,16 @@
+warn_check:
+    - type: command
+      cmd: rm -rf ${BUILD_TEMP_PATH}/*
+    - type: function
+      function_name: warn_check
+      params:
+          compile_cmd: aarch64-linux-gnu-g++ -std=c++11 -Wall -c __WARN_CHECK_HEADERS__ __WARN_CHECK_FILE__ 
+                       -o ${BUILD_TEMP_PATH}/__WARN_CHECK_FILE_NAME__ 2>&1 | tee -a ${BUILD_TEMP_PATH}/warncheck.log
+          makefile_cmd: make clean -C __WARN_CHECK_MAKEFILE_PATH__ &&
+                        make -C __WARN_CHECK_MAKEFILE_PATH__ | tee -a ${BUILD_TEMP_PATH}/warncheck.log    
+      expected_result: True
+    - type: function
+      function_name: filter_warn_check_is_none
+      params:
+          - ${BUILD_TEMP_PATH}/warncheck.log
+      expected_result: True

@@ -1,0 +1,6 @@
+install:
+    - sudo apt-get update #travis CI: need to update before install
+    - sudo apt-get -y install python3-pip
+    - sudo apt-get -y install python3-setuptools
+    - pip3 install pytest
+    - pip3 install pytest-cov

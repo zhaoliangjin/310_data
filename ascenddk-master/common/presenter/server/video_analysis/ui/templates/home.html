@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/list.css">
+    <link rel="stylesheet" href="/static/css/dialog.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap/bootstrap-treeview.css">
+    <link rel="stylesheet" href="/static/css/bootstrap/bootstrap-fonts.css">
+    
+    <title>Video Analyse</title>
+  </head>
+  <body onload="init({{treedata}})">
+    <div class="box" >
+        <div class="nav">
+             <div class="nav_left">
+                 <img src="/static/images/logo.png" alt="">
+                 <p><span>Presenter Server</span></p>
+             </div>
+             <div class="nav_right">
+             </div>
+         </div>
+     
+         <div class="box_top">
+             <span id="videoName">video name</span>
+         </div>
+         <div style="width:100%;height:2px;background-color:#ccc;"></div>
+         <!--tree-->
+         
+         <div class="content_apptree" style="width:20%;">
+            <div>
+                <span id="btn-trash" class="glyphicon glyphicon-trash" title="Delete" style="
+                margin-left: 20px;
+                cursor: pointer;"></span> 
+                <span id="btn-checkall" class="glyphicon glyphicon-ok" title="Check All" style="
+                margin-left: 10px;
+                cursor: pointer;"></span>
+                <span id="btn-expand" class="glyphicon glyphicon-list" title="Expand All" style="
+                margin-left: 10px;
+                cursor: pointer;"></span>
+                <span id="btn-collapse" class="glyphicon glyphicon-resize-small" title="Collapse All" style="
+                margin-left: 10px;
+                cursor: pointer;"></span>
+            </div>
+            <div id="tree"></div>
+        </div>
+        <div id="videoapp">
+        <div id="personAttrCard" class="card float-right" v-if="card" style="width: 20%; margin-right: 20px; margin-top: 10px">
+                <div class="card-header">Details
+                </div>
+                <div class="card-body  pre-scrollable">
+                <!--<h5 class="card-title"><span v-text="card.id"></span></h5>
+                <h6 class="card-subtitle mb-2 text-muted" v-text="card.confidence"></h6>-->
+                <ul class="list-group list-group-flush" style="width: 60%; float: left;">
+                    <li><h5 style="font-weight: 500; padding: .75rem 1.25rem;" v-text="card.id"></h5></li>
+                </ul>
+                <ul class="list-group list-group-flush" style="width: 40%; float: left;">
+                    <li><h5 style="font-weight: 500; padding: .75rem 1.25rem;" v-text="card.confidence"></h5></li>
+                </ul>
+                 <ul class="list-group list-group-flush" style="width: 60%;float: left;">
+                       <li class="list-group-item" v-for="attr in card.attrlist"><span v-text="attr"></span></li>
+                 </ul>
+                 <ul class="list-group list-group-flush" style="width: 40%;float: left;">
+                        <li class="list-group-item" v-for="conf in card.confidencelist" style="border-bottom: 1px;
+                        border-bottom-color: rgba(0, 0, 0, 0.125);
+                        border-bottom-style: solid;"><span v-text="conf"></span></li>
+                 </ul>
+                </div>
+        </div>
+        <div id="carAttrCard" class="card float-right" v-if="carcard" style="width: 20%; margin-right: 20px; margin-top: 10px">
+                <div class="card-header">Details
+                </div>
+                <div class="card-body">
+                    <!--
+                <h5 class="card-title"><span v-text="carcard.id"></span></h5>
+                <h6 class="card-subtitle mb-2 text-muted" v-text="carcard.confidence"></h6>-->
+                <ul class="list-group list-group-flush" style="width: 60%; float: left;">
+                   <li><h5 style="font-weight: 500; padding: .75rem 1.25rem;" v-text="carcard.id"></h5></li>
+                </ul>
+                <ul class="list-group list-group-flush" style="width: 40%; float: left;">
+                    <li><h5 style="font-weight: 500; padding: .75rem 1.25rem;" v-text="carcard.confidence"></h5></li>
+                </ul>
+                <ul class="list-group list-group-flush" style="width: 60%;float: left;">
+                        <li class="list-group-item" v-for="attr in carcard.attrlist"><span v-text="attr"></span></li>
+                </ul>
+                <ul class="list-group list-group-flush" style="width: 40%;float: left;">
+                    <li class="list-group-item" v-for="conf in carcard.confidencelist" style="border-bottom: 1px;
+                    border-bottom-color: rgba(0, 0, 0, 0.125);
+                    border-bottom-style: solid;"><span v-text="conf"></span></li>
+                </ul>
+                </div>
+        </div>
+            <div class="box_content"  style="width:55%;"> 
+                    
+                <!-- frame detail-->
+                <div class="py-xl-2" >
+                    <!--frame slide-->
+                    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner">
+                        <div class="carousel-item active" data-interval="false" style="height: 500px; background-color: darkgray;" data-wrap="false">
+                            <img class="d-block" v-bind:src="data.original_image" alt="First slide" style="width: initial;height: inherit;margin: auto;">
+                        </div>
+                        </div>
+                        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev" v-on:click="this.gotoPre()">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next" v-on:click="this.gotoNext()">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="form-group row float-right">
+                        <label class="col-form-label" style="padding-right: 10px;padding-top: 8px;">Jump To</label>
+                        <input class="form-control" type="text" style="width: 64px;height: 25px;margin-top: 8px;text-align: center;" v-model="frameNo" @keyup.13="this.goto()">
+                        <label class="col-form-label" style="padding-left: 5px;    padding-top: 8px;" v-text="totalFrameDisplay"></label>
+                        <button id="btn-goto" type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;margin-right: 15px;height: 25px;margin-top: 8px;padding-top: 0px;" v-on:click="this.goto()">GO</button>
+                </div>
+
+                <ul class="nav nav-tabs" id="myTab" role="tablist" v-if="flag.showTab" style="background-color: unset;height: unset; -webkit-justify-content: unset;">
+                    <li class="nav-item" v-if="carDeskList.length>0">
+                        <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true" v-bind:class="{active:flag.isCarActive}">Car</a>
+                    </li>
+                    <li class="nav-item" v-if="personDeskList.length>0">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false" v-bind:class="{active:!flag.isCarActive}">Person</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent" v-if="flag.showTab">
+                <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab" v-bind:class="{show:flag.isCarActive,active:flag.isCarActive}">
+                    <!--small pic slide -->
+                    <div id="carouselExampleIndicatorsCar" class="carousel slide  py-xl-2" data-ride="carousel" style="margin-top: 30px;">
+                            <div class="carousel-inner" style="width: 95%;
+                            margin: auto;
+                            padding-left: 5px;
+                            padding-right: 5px;">
+                                <div class="carousel-item" v-for="(cardeck,i) in carDeskList" data-interval="false" v-bind:class="{active: i == 0}">
+                                    <div class="card-deck">
+                                        <div class="card col-sm-4 text-center" v-for="(card,index) in cardeck" v-on:click="this.showAttrs(card,'car')" style="cursor:pointer">
+                                            <div style="height: 160px;background-color:#eaeaea;display: flex; align-items: center;">
+                                                <img class="card-img-top" v-bind:src="card.image" alt="Card image cap" 
+                                                    style="height:initial;width: initial;margin: auto; max-height: 160px;max-width: -webkit-fill-available;">
+                                            </div>
+                                            <div class="card-body" style="height: 5rem;">
+                                                <a href="#top" :id="gernerateCarId(index)" class="card-link" v-text="card.id"></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="carousel-control-prev" href="#carouselExampleIndicatorsCar" v-if="carDeskList.length>1"  role="button" data-slide="prev" style="    width: 2.5%;
+                            background-color: darkgrey;
+                            height: 92%;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            border-radius: 4px;">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="carousel-control-next" href="#carouselExampleIndicatorsCar" v-if="carDeskList.length>1" role="button" data-slide="next" style="    width: 2.5%;
+                            background-color: darkgrey;
+                            height: 92%;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            border-radius: 4px;"> 
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </div>
+                </div>
+                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab"  v-bind:class="{show:!flag.isCarActive,active:!flag.isCarActive}">
+                        <!--small pic slide -->
+                    <div id="carouselExampleIndicatorsPerson" class="carousel slide  py-xl-2" data-ride="carousel">
+                            <div class="carousel-inner" style="width: 95%;
+                            margin: auto;
+                            padding-left: 5px;
+                            padding-right: 5px;">
+                                <div class="carousel-item" v-for="(persondeck,i) in personDeskList" data-interval="false"  v-bind:class="{active: i == 0}">
+                                    <div class="card-deck">
+                                        <div class="card col-sm-4 text-center" v-for="person in persondeck" v-on:click="this.showAttrs(person,'person')" style="cursor:pointer">
+                                                <div style="height: 160px;background-color:#eaeaea;display: flex; align-items: center;">    
+                                                    <img class="card-img-top" v-bind:src="person.image" alt="Card image cap" 
+                                                        style="height:initial;width: initial;margin: auto; max-height: 160px;max-width: -webkit-fill-available;">
+                                                </div>
+                                                <div class="card-body" style="height: 5rem;">
+                                                    <a href="#top" class="card-link" v-text="person.id"></a>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="carousel-control-prev" href="#carouselExampleIndicatorsPerson" v-if="personDeskList.length>1" role="button" data-slide="prev" style="    width: 2.5%;
+                            background-color: darkgrey;
+                            height: 92%;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            border-radius: 4px;">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="carousel-control-next" href="#carouselExampleIndicatorsPerson" v-if="personDeskList.length>1" role="button" data-slide="next" style="    width: 2.5%;
+                            background-color: darkgrey;
+                            height: 92%;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            border-radius: 4px;">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </div>
+                </div>
+        </div>
+            </div>
+        </div>
+     </div>
+    <div id="cover" class="cover"> </div> 
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="/static/js/jquery-1.10.2.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-treeview.js"></script>    
+    <script src="/static/js/dialog.js"></script>
+    <script src="/static/js/vue.js"></script>
+    <script type="text/javascript">
+    var videoapp = new Vue({
+            el: '#videoapp',
+            data: {
+                data:null,
+                carDeskList:null,
+                personDeskList:null,
+                frameNo:"1",
+                totalFrame:null,
+                totalFrameDisplay:"",
+                card:null,
+                carcard:null,
+                flag:{
+                    showTab:false,
+                    isCarActive:false,
+                    isPersonActive:false
+                }
+            },
+            methods:{
+                gernerateCarId: function (index){
+                    return "cAttr_" +index
+                },
+                gerneratePersonId: function (index){
+                    return "pAttr_" +index
+                }
+            }
+            });
+        /**
+         *init home page,list app tree
+         *@params:treedata from backend
+        */
+        function init(treedata){
+             //init treeview component
+             for(var i=0;i<treedata.length;i++){
+                treedata[i].color= "#000000";
+                treedata[i].backColor= "#FFFFFF";
+                treedata[i].selectable= false;
+                treedata[i].state= {checked: false};
+                if(treedata[i].nodes){
+                    for(var j=0;j<treedata[i].nodes.length;j++){
+                        treedata[i].nodes[j].color= "#000000";
+                        treedata[i].nodes[j].backColor= "#FFFFFF";
+                        treedata[i].nodes[j].selectable= true;
+                    }
+                }
+             }
+             $('#tree').treeview({data: treedata});
+
+             //event register
+             $('#tree').on('nodeSelected', onNodeSeleted);     
+             $('#tree').on('nodeChecked', onNodeChecked); 
+             $('#tree').on('nodeUnchecked', onNodeUnChecked);
+
+             $('.carousel').carousel('pause');
+             $('#cover').hide();
+             $('#tree').treeview('toggleNodeSelected', [1]);//默认选中第一个channel
+        }
+        /**
+         * when channel is selected ,to present frame on right side
+         * @params:event  node selected event
+         * @params:data   node of channel
+        */
+        function onNodeSeleted(event, data) {
+            var app = $('#tree').treeview('getParent', data);
+            document.getElementById("videoName").innerText="Video Source  "+data.videoName?data.videoName:"Video APP";
+
+            presentFrame(app.text,data.text,"1");    
+                     
+        }
+        /**
+         * when channel is checked 
+         *    if check app ,means check all channle under this app;
+         *    if check channle,mean its father app will checked default.
+         * @params:event  node checked event
+         * @params:data   node of channel
+        */
+        function onNodeChecked(event, data) {
+            var parentNode = $('#tree').treeview('getParent', data);
+            if(parentNode.nodeId == undefined){
+                //if check app ,means check all channle under this app;
+                $.each(data.nodes,function(i,channel){
+                    $('#tree').treeview('toggleNodeChecked', [ channel.nodeId, { silent: true } ]);
+                });
+            }
+            else{
+                //if check channle,mean its father app will checked default.
+                if(!parentNode.state.checked){
+                    $('#tree').treeview('toggleNodeChecked', [ parentNode.nodeId, { silent: true } ]);
+                }
+            } 
+        }
+        /**
+         * when channel is unchecked 
+         *    if uncheck app ,means uncheck all channle under this app;
+         *    if uncheck all channels under one app,mean its father app will be unchecked default.
+         * @params:event  node unchecked event
+         * @params:data   node of channel
+        */
+        function onNodeUnChecked(event, data) {
+            debugger;
+            var parentNode = $('#tree').treeview('getParent', data);
+            if(parentNode.nodeId == undefined){
+                //if uncheck app ,means uncheck all channle under this app;
+                $.each(data.nodes,function(i,channel){
+                    if(channel.state.checked){
+                        $('#tree').treeview('toggleNodeChecked', [ channel.nodeId, { silent: true } ]);
+                    }
+                });
+            }
+            else{
+                //if uncheck all channels under one app,mean its father app will be unchecked default.
+                var toUncheckAPP=true;
+                var siblingList = $('#tree').treeview('getSiblings', data);
+                $.each(siblingList,function(i,sib){
+                    if(sib.state.checked){
+                        toUncheckAPP = false;
+                        return;
+                    }
+                });
+                if(toUncheckAPP){
+                    $('#tree').treeview('toggleNodeChecked', [ parentNode.nodeId, { silent: true } ]);
+                }          
+            }            
+        }
+        /**
+         * Get total number of frames under one channel 
+         * @params:app  
+         * @params:channel  
+        */
+        function getTotalFrameNum(app,channel){
+            var url = "/gettotalframe?"+"time="+(new Date().getTime());
+            $.ajax({
+                    type: "GET",
+                    url: url,
+                    dataType: "json",
+                    data:{
+                        appName:app,
+                        channelName:channel
+                    },
+                    success: function(resp)
+                    {
+                        videoapp.$data.totalFrameDisplay = "/ "+resp.frame;
+                        videoapp.$data.totalFrame = parseInt(resp.frame);
+                    },
+                    error:function(){
+                        $('#cover').hide();
+                    }
+                }); 
+
+        }
+         /**
+         * Get frame and small pic from backend and display
+         * Default display frist car attributes
+         * @params:app  
+         * @params:channel  
+         * @params:frame
+        */
+        function presentFrame(app,channel,frame) {
+            $('#cover').show();
+            videoapp.$data.flag.showTab=false;
+            videoapp.$data.flag.isCarActive=false;
+            videoapp.$data.frameNo=parseInt(frame);
+            var url = "/showimg?"+"time="+(new Date().getTime());
+            $.ajax({
+                    type: "GET",
+                    url: url,
+                    dataType: "json",
+                    data:{
+                        appName:app,
+                        channelName:channel,
+                        frame:parseInt(frame)-1
+                    },
+                    success: function(resp)
+                    {
+                        $('#cover').hide();
+                        if (resp["ret"] == "0")
+                        {
+                            //To fit the carousel component,every 4 small pic to form 1 card deck
+                            var carDeskList = [];
+                            resp.data.car_list.sort(sortId);
+                            resp.data.person_list.sort(sortId);
+                            for(var i =0;i<resp.data.car_list.length;i=i+4){
+                                var carList = resp.data.car_list.slice(i,i+4);
+                                carDeskList.push(carList);
+                            }
+                            var personDeskList = [];
+                            for(var i =0;i<resp.data.person_list.length;i=i+4){
+                                var personList = resp.data.person_list.slice(i,i+4);
+                                personDeskList.push(personList);
+                            }
+                            
+                            videoapp.$data.data=resp.data;
+                            videoapp.$data.carDeskList = carDeskList;
+                            videoapp.$data.personDeskList=personDeskList;
+                            if(carDeskList.length>0 || personDeskList.length>0){
+                                videoapp.$data.flag.showTab=true;
+                                if(carDeskList.length>0){
+                                    videoapp.$data.flag.isCarActive=true;
+                                }
+                            }
+                            //default card attributes is first car or first person
+                            var flag = "";
+                            var card = videoapp.$data.personDeskList[0]?videoapp.$data.personDeskList[0][0]:null;
+                            if(card){
+                                flag = "person";
+                            }
+                            card = videoapp.$data.carDeskList[0]?videoapp.$data.carDeskList[0][0]:card;
+                            if(videoapp.$data.carDeskList[0]){
+                                flag = "car";
+                            }
+                            showAttrs(card,flag);
+                        }
+                        else
+                        {
+                            dialog.tip("Tips", resp["msg"], function(){});
+                        }
+                    },
+                    error:function(){
+                        $('#cover').hide();
+                    }
+                });  
+                getTotalFrameNum(app,channel); //refresh total frame number           
+        }
+        /**
+         * Go to specific frame
+         *   Get frame number from input box
+        */
+        function goto(){
+            debugger;
+           var num = videoapp.$data.frameNo;
+           if(parseInt(num) > videoapp.$data.totalFrame || parseInt(num)<1){
+               return false;
+           }
+           var selectedChannel = $('#tree').treeview('getSelected',0);
+           var app = $('#tree').treeview('getParent', selectedChannel);
+           presentFrame(app.text,selectedChannel[0].text,num);
+        }
+        /**
+         * Go to next frame
+         *   Get frame number from input box
+        */
+        function gotoNext(){
+           var num = videoapp.$data.frameNo;
+           if(parseInt(num) >= videoapp.$data.totalFrame){
+               return false;
+           }
+           var selectedChannel = $('#tree').treeview('getSelected',0);
+           var app = $('#tree').treeview('getParent', selectedChannel);
+           presentFrame(app.text,selectedChannel[0].text,parseInt(num)+1);
+        }
+        /**
+         * Go to previous frame
+         *   Get frame number from input box
+        */
+        function gotoPre(){
+           var num = videoapp.$data.frameNo;
+           if(num == "1"){
+               return false;
+           }
+           var selectedChannel = $('#tree').treeview('getSelected',0);
+           var app = $('#tree').treeview('getParent', selectedChannel);
+           presentFrame(app.text,selectedChannel[0].text,parseInt(num)-1);
+          
+        }
+        /**
+         * Display small pic attributes on the card
+         * @params:card   one small pic
+         * @params:flag   "person"|"car"
+        */
+        function showAttrs(card,flag){
+            videoapp.$data.card=null;
+            videoapp.$data.carcard=null;
+            if(!flag){
+                return false;
+            }
+            var attrlist = [];
+            var attrObj = {};
+            if(flag == "person"){
+                attrObj = card.property;
+            }
+            else if (flag == "car"){
+                attrObj = card;
+            }
+            //get attrlist from json object
+            for(var p in attrObj){
+                if(p != "image" && p != "id" && p != "confidence"){
+                    if(p.includes("confidence")){//for car confidence
+                        attrObj[p] = new Number(attrObj[p]).toFixed(3);
+                    }
+                    if(flag=="person"){//for person confidence
+                        attrObj[p] = new Number(attrObj[p]).toFixed(3);
+                    }
+                    var str = p +":"+attrObj[p];
+                    attrlist.push(str);
+                }
+            }
+            attrlist = attrlist.sort();
+            //assemble card object for display
+            var carAttrList = [];
+            var carConfidenceList = [];
+            var personAttrList = [];
+            var personConfidenceList = [];
+            var confidence = new Number(card.confidence);
+            if(flag == "person"){
+                $.each(attrlist,function(i,attr){
+                    var tmplist = attr.split(":");
+                    personAttrList.push(tmplist[0]);
+                    personConfidenceList.push(tmplist[1]);
+                });
+                videoapp.$data.card={
+                    id:card.id,//title
+                    confidence:confidence.toFixed(3),//sub title
+                    attrlist:personAttrList,
+                    confidencelist:personConfidenceList
+                };
+            }
+            else if (flag == "car"){
+                $.each(attrlist,function(i,attr){
+                    if((i+1)%2 == 0){
+                        var tmplist = attr.split(":");
+                        attr = tmplist[1];
+                        carConfidenceList.push(attr);
+                    }
+                    else{
+                        carAttrList.push(attr);
+                    }
+                });
+                videoapp.$data.carcard={
+                    id:card.id,//title
+                    confidence:confidence.toFixed(3),//sub title
+                    attrlist:carAttrList,
+                    confidencelist:carConfidenceList
+                };
+            }
+            location.href="#top";
+        }
+        /**
+         * sort by car_id or person_id
+        */
+        function sortId(a,b){
+            var tmp1 = a.id.split("_");
+            var tmp2= b.id.split("_");
+            return parseInt(tmp1[1]) - parseInt(tmp2[1]);
+        }
+       
+        /**
+         * delete action for tree node
+        */
+        $("#btn-trash").click(function() {
+            //check if selected at least one node
+            if($('#tree').treeview('getChecked').length == 0){
+                dialog.tip("Tips","Please check channels which you want to delete.");
+                return false;
+            }
+            var checkedNodesList = $('#tree').treeview('getChecked');
+            var appList = [];
+            //find all apps
+            $.each(checkedNodesList,function(i,node){
+                if(node.parentId == undefined){
+                    var isCheckedAllChannel = true;
+                    $.each(node.nodes,function(i,channel){
+                        if(!channel.state.checked) isCheckedAllChannel = false;
+                    });
+                    node.isCheckedAllChannel = isCheckedAllChannel;
+                    appList.push(node);
+                }
+            });
+
+            dialog.confirm("Tips", "Are you sure to delete these channels ?", function(){
+                var url = "/del?"+"time="+(new Date().getTime());
+                 $.ajax({
+                         type: "POST",
+                         url: url,
+                         dataType: "json",
+                         data:{
+                            applist:JSON.stringify(appList)
+                         },
+                         success: function(data)
+                         {
+                             if (data["ret"] == "0")
+                             {
+                                 window.location.reload()
+                             }
+                             else
+                             {
+                                dialog.tip("Tips", data["msg"], function(){});
+                             }
+                         },
+                      });
+                }, function(){});
+        });
+        /**
+         * check all action for tree node
+        */
+        $("#btn-checkall").click(function() {
+            if($('#tree').treeview('getNode', 0).state.checked){
+                $('#tree').treeview('uncheckAll', { silent: true });
+            }
+            else{
+                $('#tree').treeview('checkAll', { silent: true });
+            }
+        });
+        /**
+         * expand all action for tree node
+        */
+        $("#btn-expand").click(function() {
+            //check if selected at least one node
+            $('#tree').treeview('expandAll', { levels: 2, silent: true });
+        });
+        /**
+         * collapse all action for tree node
+        */
+        $("#btn-collapse").click(function() {
+            //check if selected at least one node
+            $('#tree').treeview('collapseAll', { silent: true });
+        });
+    </script>
+</body>
+</html>

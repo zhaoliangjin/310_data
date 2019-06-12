@@ -1,0 +1,192 @@
+syntax = "proto3";
+
+package hiai;
+
+// Tensor参数描述
+message AITensorParaDescription
+{
+    string name = 1;   // 参数名称
+    string type = 2;   // 参数类型
+    string value = 3;  // 参数值
+    string desc = 4;   // 参数描述
+    repeated AITensorParaDescription sub_paras = 5; // 子参数列表
+};
+
+// Tensor描述
+message AITensorDescription
+{
+    string name = 1;   // Tensor名称
+    string type = 2;   // Tensor类型
+    repeated string compatible_type = 3; // 指定可以兼容的所有父类类型
+    repeated AITensorParaDescription paras = 4; // 参数列表
+};
+
+// Tensor描述列表
+message AITensorDescriptionList
+{
+    repeated AITensorDescription tensor_descs = 1; // tensor列表
+}
+
+// 通用配置项
+// 如果存在sub_items，则当前节点为父节点，value值无效
+message AIConfigItem
+{
+    string name = 1;   // 配置项名称
+    string value = 2;  // 配置项值
+    repeated AIConfigItem sub_items = 3;  // 配置子项
+};
+
+// nnnode/api运行时配置参数
+message AIConfig
+{
+    repeated AIConfigItem items = 1; // 配置项列表
+};
+
+// 模型描述
+message AIModelDescription
+{
+    string name = 1;  // 模型名称
+    int32 type = 2;   // 模型类型
+                      // 模型管家已新增模型解析能力，因此该字段不设置亦无碍，为了保持向前兼容，特此保留--2018/11/24
+    string version = 3;  // 模型版本
+    int32 size = 4;  // 模型大小
+    string path = 5;  // 模型路径
+    repeated string sub_path = 6; // 辅助模型路径，用于模型文件为多个的情况，比如caffe在线模型
+                                  // 为了向前兼容，我们没有对path字段做修改（修改为repeated），而是新增了sub_path字段--2018/11/24
+    string key = 7;  // 模型秘钥
+    repeated string sub_key = 8; // 辅助模型秘钥，用于模型秘钥为多个的情况，比如caffe在线模型
+                                 // 为了向前兼容，我们没有对key字段做修改（修改为repeated），而是新增了sub_key字段--2018/11/24
+    enum Frequency   // 模型频率
+    {
+        UNSET   =0;   // 取消设置 
+        LOW     =1;   // 低频
+        MEDIUM  =2;   // 中频
+        HIGH    =3;   // 高频
+    }
+    Frequency frequency = 9;
+    enum DeviceType  // 模型运行设备类型
+    {
+        NPU  = 0;   //
+        IPU  = 1;   // 970 IPU
+        MLU  = 2;   // 980 IPU
+        CPU  = 3;
+        NONE = 255;
+    }
+    DeviceType device_type = 10;
+    enum Framework  // 执行框架，如 offline/caffe/tf
+    {
+        OFFLINE    =0;
+        CAFFE      =1;
+        TENSORFLOW =2;
+    }
+    Framework framework = 11;
+    bytes data = 100;  // 模型数据
+    repeated AITensorDescription inputs = 12;  // 输入Tensor描述
+    repeated AITensorDescription outputs = 13; // 输出Tensor描述
+};
+
+// NNNode描述
+message AINNNodeDescription
+{
+    string name = 1;  // NNNode名称
+    string desc = 2;  // NNNode描述
+    bool isPreAllocateOutputMem = 3;  // 是否预分配输出内存
+    AIConfig config = 4; // 配置参数
+    repeated AIModelDescription model_list = 5; // nnnode需要的模型列表
+    repeated AITensorDescription inputs = 6;   // 输入Tensor描述
+    repeated AITensorDescription outputs = 7;  // 输出Tensor描述
+    bool need_verify = 8; // 串联时是否需要校验Tensor匹配
+    repeated string ignored_check_aitensor = 9; // 指定在串联时不与Inputs的Tensor做匹配校验的Tensor列表
+};
+
+// NNNode描述列表
+message AINNNodeDescriptionList
+{
+    repeated AINNNodeDescription nnnode_descs = 1; // nnnode列表
+}
+
+// API描述
+message AIAPIDescription
+{
+    string name = 1;  // API名称
+    string desc = 2;  // API描述
+    bool isPreAllocateOutputMem = 3;  // 是否预分配输出内存
+    AIConfig config = 4; // 配置参数
+    repeated AITensorDescription inputs = 5;   // 输入Tensor描述
+    repeated AITensorDescription outputs = 6;  // 输出Tensor描述
+    bool need_verify = 7; // 串联时是否需要校验Tensor匹配
+    repeated string ignored_check_aitensor = 8; // 指定在串联时不与Inputs的Tensor做匹配校验的Tensor列表
+};
+
+// API描述列表
+message AIAPIDescriptionList
+{
+    repeated AIAPIDescription api_descs = 1; // API列表
+}
+
+// AI Operation 描述
+message AIOPDescription
+{
+    enum OP_Type
+    {
+        AI_API = 0;
+        AI_NNNODE = 1;
+    }
+
+    OP_Type type = 1;
+    AINNNodeDescription nnnode_desc = 2;
+    AIAPIDescription api_desc = 3;
+};
+
+// AI Operation 描述列表
+message AIOPDescriptionList
+{
+    repeated AIOPDescription op_descs = 1; //  AI Operation列表
+}
+
+// IDE传给HIAIengine的接口
+
+message NodeDesc
+{
+   string name=1; // IAINNNode或ALG_API 名字
+   AIConfig config=2;  //IAINNNode或ALG_API 需要的初始化参数
+   repeated  AIModelDescription mode_desc=3; //IAINNNode 需要的初始化参数
+}
+
+message EngineDesc
+{
+    enum RunSide
+    {
+        DEVICE=0;
+        HOST=1;
+    }
+    enum EngineType
+    {
+        NORMAL=0;
+        SOURCE=1;
+        DEST=2;
+    }
+    uint32 id =1;   //Engine ID (节点)
+    EngineType type=2; //
+    string name =3; //Engine 节点名字
+    repeated string so_name=4; //需要的所有动态库so文件名列表
+    RunSide side=5; //部署在Host侧还是Device侧
+    int32 priority=6; //节点优先级
+    uint32 instance_cnt=7; //实例个数（相当于线程个数）
+    repeated uint32 next_node_id=8; //下一个节点列表
+    bool user_input_cb=9;   //IDE 可以忽略
+    bool user_output_cb=10; //IDE 可以忽略
+    repeated NodeDesc oper=11; //HIAIEngine Node 列表
+}
+
+message GraphInitDesc
+{
+    int32 priority=1; //Graph 整个进程的优先级
+    //Runside side = 2; //当前假定Graph 配置在Host侧，不可配置
+}
+
+message GeneralFileBuffer
+{
+    bytes raw_data = 1;
+    string file_name = 2;
+}

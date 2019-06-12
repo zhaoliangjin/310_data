@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package ascend.presenter.video_analysis;
+
+enum ErrorCode {
+    kErrorNone = 0;
+    kErrorAppRegisterExist = 1;
+    kErrorAppRegisterNoStorage = 2;
+    kErrorAppRegisterType = 3;
+    kErrorAppRegisterLimit = 4;
+    kErrorAppDelete = 5;
+    kErrorAppLost = 6;
+    kErrorStorageLimit = 7;
+    kErrorOther = 8;
+}
+
+message RegisterApp {
+    string id = 1;
+    string type = 2;
+}
+
+message CommonResponse {
+    ErrorCode ret = 1;
+    string message = 2;
+}
+
+message FrameIndex{
+    string app_id = 1;
+    string channel_id = 2;
+    string channel_name = 3;
+    string frame_id = 4;
+}
+
+message Object{
+    string id = 1;
+    float confidence = 2;
+    bytes image = 3;
+}
+
+message ImageSet {
+    FrameIndex frame_index = 1;
+    bytes frame_image = 2;
+    repeated Object object = 3;
+}
+
+enum CarInferenceType{
+    kCarColor = 0;
+    kCarBrand = 1;
+}
+
+message CarInferenceResult {
+    FrameIndex frame_index = 1;
+    string object_id = 2;
+    CarInferenceType type = 3;
+    float confidence = 4;
+    string value = 5;
+}
+
+message MapType {
+  string key = 1;
+  float value = 2;
+}
+
+message HumanInferenceResult {
+    FrameIndex frame_index = 1;
+    string object_id = 2;
+    repeated MapType human_property = 3;
+}

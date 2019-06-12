@@ -1,0 +1,5 @@
+install:
+    - git clone --depth=50 --branch=$TRAVIS_BRANCH https://github.com/Ascend/tools.git ${ASCEND_ROOT_PATH}/tools 
+    - cd ${ASCEND_ROOT_PATH}/tools && git checkout
+    - unzip mini_mind_studio_developerkit*.rar
+    - tar -zxvf MSpore_DDK*

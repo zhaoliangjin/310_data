@@ -1,0 +1,18 @@
+install:
+    - wget -P ${LLT_ROOT_PATH}/src/gtest --no-check-certificate -N "https://github.com/abseil/googletest/archive/release-1.8.1.tar.gz"
+    - tar -zxvf ${LLT_ROOT_PATH}/src/gtest/release*.tar.gz -C ${LLT_ROOT_PATH}/src/gtest
+    - cd ${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest &&
+      cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS="-std=c++0x" ./ && make
+    - mkdir -p ${LLT_ROOT_PATH}/gtest/lib
+    - cp -R ${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest/include ${LLT_ROOT_PATH}/gtest/
+    - cp -R ${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest/lib*.a ${LLT_ROOT_PATH}/gtest/lib/
+    - wget -P ${LLT_ROOT_PATH}/src/mockcpp --no-check-certificate -N "https://bitbucket.org/godsme/mockcpp/get/06ad37ddc45c.zip"
+    - unzip -o ${LLT_ROOT_PATH}/src/mockcpp/*.zip -d ${LLT_ROOT_PATH}/src/mockcpp
+    - cd ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp* &&
+      cmake -DMOCKCPP_XUNIT=gtest -DMOCKCPP_XUNIT_HOME=${LLT_ROOT_PATH}/src/gtest/googletest-release-1.8.1/googletest
+      -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS="-std=c++0x" -DCMAKE_INSTALL_PREFIX=./install ./
+      && make install
+    - mkdir -p ${LLT_ROOT_PATH}/mockcpp
+    - cp -R ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp*/install/* ${LLT_ROOT_PATH}/mockcpp/
+    - cp -R ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp*/3rdparty ${LLT_ROOT_PATH}/mockcpp/include/
+    - cd ${ASCEND_ROOT_PATH}

@@ -1,0 +1,70 @@
+﻿syntax = "proto3";
+import "ai_types.proto";
+package hiai;
+
+message EngineConfig
+{
+    enum RunSide
+    {
+        DEVICE=0;
+        HOST=1;
+    }
+
+    uint32 id =1;   //Engine ID (节点)
+    string engine_name =2; //Engine 节点名字
+    repeated string so_name=3; //需要拷贝的所有动态库so文件名列表
+    RunSide side=4; //部署在Host侧还是Device侧
+    uint32 thread_num = 5;//线程数量
+    uint32 thread_priority = 6;//线程优先级
+    uint32 queue_size = 7;//队列大小
+    AIConfig ai_config = 8; //Aiconfig
+    repeated AIModelDescription ai_model = 9; //AIModelDescription
+    repeated string internal_so_name=10; //不需要拷贝的所有动态库so文件名列表
+    uint32 queue_full_time_out = 11; // 阻塞等待时间，单位为毫秒
+    uint32 wait_inputdata_max_time = 12; //当前已经收到数据后等待下一个数据的最大超时时间
+    uint32 holdModelFileFlag = 13; //是否保留本engine的模型文件，0不保留，非0保留
+}
+message ConnectConfig
+{
+    uint32 src_engine_id=1;
+    uint32 src_port_id = 2;
+    uint32 target_graph_id=3;
+    uint32 target_engine_id=4;
+    uint32 target_port_id=5;
+}
+message GraphConfig
+{
+    uint32 graph_id = 1;
+    int32 priority = 2;
+    string device_id = 3;//设备id配置，"0"
+    repeated EngineConfig engines = 4;//所有的engine
+    repeated ConnectConfig connects = 5;
+    uint32 host_send_num = 6;
+    uint32 host_recv_num = 7;
+    uint32 device_send_num = 8;
+    uint32 device_recv_num = 9;
+    uint32 host_ctrl_num = 10; //设置host ctrl/data的数量，后续不在使用
+    uint32 host_data_num = 11;
+    uint32 device_ctrl_num = 12;
+    uint32 device_data_num = 13;
+}
+message GraphConfigList
+{
+    repeated GraphConfig graphs = 1;
+}
+
+message ProfileConfig
+{
+    string matrix_profiling = 1;
+    string ome_profiling = 2;
+    string cce_profiling =3;
+    string runtime_profiling = 4;
+    string PROFILER_TARGET = 5;
+    string PROFILER_JOBCTX = 6;
+    string src_path = 7;
+    string dest_path = 8;
+    string runtime_config = 9;
+    string RTS_PATH = 10;
+    string profiler_jobctx_path = 11;
+    string profiler_target_path = 12;
+}

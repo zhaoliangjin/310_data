@@ -1,0 +1,29 @@
+language: cpp
+
+dist: xenial
+env:
+    ASCEND_ROOT_PATH=${HOME}/build/${TRAVIS_REPO_SLUG}/..
+    BUILD_ROOT_PATH=${ASCEND_ROOT_PATH}/ascenddk/scripts/travis_scripts
+    BUILD_TEMP_PATH=${BUILD_ROOT_PATH}/temp
+    DDK_HOME=${ASCEND_ROOT_PATH}/tools/ddk
+    LLT_ROOT_PATH=${ASCEND_ROOT_PATH}/llt
+
+#default before_install, clone Ascend/tools as default, it can be overwrited by jobs
+before_install: python3 ${BUILD_ROOT_PATH}/install/install.py clone_tools
+
+#default install, it can be overwrited by jobs
+install: python3 ${BUILD_ROOT_PATH}/install/install.py install
+
+jobs:
+    include:
+        - stage: ascenddk llt and sc
+          name: "static_warn_check"
+          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check warn_check
+        - name: "pytest"
+          before_install: true
+          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pytest
+          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt pytest
+        - name: "ctest"
+          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_llt
+          before_script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt ctest_prepare
+          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt ctest
